@@ -36,12 +36,22 @@ First, you must override the ANTask and ANHandler in your activity.
 	};
     
 ##Making the request##
+	public ANTask(String URL, String action, List<NameValuePair> params, String type, Handler mainUIHandler, Context context)
 To make a request, you must sepecify the following options:
 * __URL__ - (String) The url to route to.  The base url is set in the ANTask class
-* __Name Value Pairs__ - (BasicNameValuePair) Used for both get and post.  For a post, these are form encoded.  For get, they are URL encoded and appended to the get string
 * __Action__ - (String) GET or POST
+* __Name Value Pairs__ - (BasicNameValuePair) Used for both get and post.  For a post, these are form encoded.  For get, they are URL encoded and appended to the get string
 * __Type__ - (String) This is passed back by the handler for differentiating between requests.  Passed back as msg.what
-* __Handler__ - (ANHandler) Your ANHandler
-* __Context__ - (Context) Your activities context ("this" if you extend activity).
-  
+* __Handler__ - (ANHandler) Your ANHandler created above
+* __Context__ - (Context) Your activities context
 
+##Basic Auth##
+
+For basic auth support, use the ANUtils class to set a username and password in preferences, and it will be used for every request.
+	public void setLogin(String username, String password)
+
+##Notes##
+* The decode method exposes the parsing method in your main activity, so you can have the applicable code right in your activity, while hiding all the ugly networking code
+* Return any Object from the decode method, and then recieve it in the resultOk by calling msg.obj;
+* If null is returned from decode, resultFailed will be called
+* For json data parsing, check out google GSON for easy parsing
