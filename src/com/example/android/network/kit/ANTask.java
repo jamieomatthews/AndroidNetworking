@@ -59,9 +59,9 @@ public abstract class ANTask extends AsyncTask<String, Void, Object>
 		this.context = context;
 		this.type = type;
 		hasInternet=true;
-		SharedPreferences settings = context.getSharedPreferences("Munchful",0);
-		username = settings.getString("device_id", "-1");
-		password = settings.getString("sec_token", "-1");
+		ANUtils util = new ANUtils(context);
+		username = util.getUsername();
+		password = util.getPassword();
 		userAgent = getVersionString();
 		if(action.equalsIgnoreCase("GET"))//is get
 		{
