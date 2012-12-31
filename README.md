@@ -30,8 +30,6 @@ First, you must override the ANTask and ANHandler in your activity.
 		@Override
 		public void resultFailed(Message msg) {
 			//Show some error message
-			Log.d("LocationActivity", "Handling Error Message");
-
 		}
 	};
     
