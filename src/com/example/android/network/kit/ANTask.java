@@ -19,6 +19,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
 import org.json.JSONException;
 
 import android.content.Context;
@@ -35,12 +36,13 @@ import android.util.Log;
 
 public abstract class ANTask extends AsyncTask<String, Void, Object>
 {
+	private final String TAG = "ANTask";
 	private Handler UIHandler;
 	private String URL;
 	private String action;
 	private List<NameValuePair> params;
 	private String queryString;
-	private static final String baseURL = "http://api.twitter.com";
+	private static final String baseURL = "http://ws.spotify.com/search/1/";
 	private String password;
 	private String username;
 	private Context context;
@@ -236,10 +238,10 @@ public abstract class ANTask extends AsyncTask<String, Void, Object>
 			Log.d("URL", full_url);
 			HttpGet httpget = new HttpGet(full_url);
 			//String encoded = Base64.encodeToString((device_id+":"+sec_token).getBytes(), Base64.URL_SAFE));
-			httpget.setHeader("Authorization", "Basic "+Base64.encodeToString(((username+":"+password).getBytes()), Base64.NO_WRAP));
-			httpget.getParams().setParameter(CoreProtocolPNames.USER_AGENT, userAgent);
+			//httpget.setHeader("Authorization", "Basic "+Base64.encodeToString(((username+":"+password).getBytes()), Base64.NO_WRAP));
+			//httpget.getParams().setParameter(CoreProtocolPNames.USER_AGENT, userAgent);
 	        response = client.execute(httpget);
-	        
+	        HttpParams params = httpget.getParams();
 	        StatusLine statusLine = response.getStatusLine();
 			int statusCode = statusLine.getStatusCode();
 			Log.d("Status code", String.valueOf(statusCode));
@@ -258,7 +260,16 @@ public abstract class ANTask extends AsyncTask<String, Void, Object>
 			else 
 			{
 				Log.e(ANTask.this.toString(), "Failed to download file");
-				
+				HttpEntity entity = response.getEntity();
+				InputStream content = entity.getContent();
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(content));
+				String line;
+				while ((line = reader.readLine()) != null) 
+				{
+					builder.append(line);
+				}
+				Log.d(TAG, "Error: " + builder.toString());
 			}
 		} 
 	    catch (ClientProtocolException e) 

@@ -9,7 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -23,16 +22,19 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnClickListener{
+	final static String TAG = "MainActivity";
 	ProgressDialog progress;
 	Context context;
 	Button search;
 	ListView lv;
-	TweetAdapter adapter;
-	ArrayList<TStatus> statuses;
+	EditText query;
+	TracksAdapter adapter;
+	ArrayList<Track> tracks;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,25 +44,28 @@ public class MainActivity extends Activity implements OnClickListener{
         
         search = (Button)findViewById(R.id.search);
         search.setOnClickListener(this);
-        statuses = new ArrayList<TStatus>();
+        query = (EditText)findViewById(R.id.query);
         
+        tracks = new ArrayList<Track>();
         lv = (ListView) findViewById(R.id.list);
     }
 
     @Override
 	public void onClick(View arg0) {
     	//Generate a get request to the following URL
-    	String url = "/1/statuses/user_timeline.json";
-    	List<NameValuePair> pairs = new ArrayList<NameValuePair>(1);
-		pairs.add(new BasicNameValuePair("screen_name", "Munchful")); //set a get param called screen_name, set to "Munchful"
-		progress.setTitle("Loading Tweets");
-    	GetTweets getter = new GetTweets(url, "GET", pairs, "tweets", asyncHandler, context);
+    	String url = "track.json";
+    	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+    	//set a get param called query, set to the value of the edit text
+		pairs.add(new BasicNameValuePair("q", query.getText().toString())); 
+		progress.setTitle("Loading Songs");
+		progress.show();
+    	GetTracks getter = new GetTracks(url, "GET", pairs, "tracks", asyncHandler, context);
     	getter.execute();
 	}  
     
-    public class GetTweets extends ANTask{
+    public class GetTracks extends ANTask{
     	Status status;
-		public GetTweets(String URL, String action, List<NameValuePair> params,
+		public GetTracks(String URL, String action, List<NameValuePair> params,
 				String type, Handler mainUIHandler, Context context) {
 			super(URL, action, params, type, mainUIHandler, context);
 		}
@@ -68,79 +73,64 @@ public class MainActivity extends Activity implements OnClickListener{
 		@Override
 		protected Object decode(String jsondata) throws JSONException {
 			Log.d("JSON", jsondata);
-			//JSONObject object = new JSONObject(jsondata);
-			JSONArray jtweets = new JSONArray(jsondata);
-			ArrayList<TStatus> statuses = new ArrayList<TStatus>();
-			for(int i = 0; i < jtweets.length(); i++){
-				//JSONArray userarray = (JSONArray)jtweets.get(i);
-				//JSONObject ob = userarray.getJSONObject(0);//get the first user
-				JSONObject ob = jtweets.getJSONObject(i);
-				TStatus status = new TStatus();
-				status.text = ob.getString("text");
-				status.date = ob.getString("created_at");
-				JSONObject juser = ob.getJSONObject("user");
-				User user = new User();
-				user.name = juser.getString("name");
-				user.screenName= juser.getString("screen_name");
-				user.userId = juser.getInt("id");
-				status.user = user;
-				statuses.add(status);
+			JSONObject ob = new JSONObject(jsondata);
+			JSONArray jtracks = ob.getJSONArray("tracks");
+			for(int i = 0; i < jtracks.length(); i++){
+				JSONObject jtrack = (JSONObject) jtracks.get(i);
+				tracks.add(new Track(jtrack));
 			}
-			
-			return statuses;
+			return tracks;
 		}
 		
-	}
+    }
     ANHandler asyncHandler = new ANHandler()
     {
-		@Override
-		public void resultOK(Message msg) 
-		{
-			Bundle b = msg.getData();
+    	@Override
+    	public void resultOK(Message msg) 
+    	{
+    		Bundle b = msg.getData();
 
-			if(progress.isShowing()){
+    		if(progress.isShowing()){
     			progress.dismiss();
     		}
-			statuses = (ArrayList<TStatus>)msg.obj;
-			adapter = new TweetAdapter(MainActivity.this, R.layout.tweet_cell, statuses);
-	        lv.setAdapter(adapter);
-			adapter.notifyDataSetChanged();
-		}
+    		tracks = (ArrayList<Track>)msg.obj;
+    		adapter = new TracksAdapter(MainActivity.this, R.layout.track_cell, tracks);
+    		lv.setAdapter(adapter);
+    		adapter.notifyDataSetChanged();
+    	}
 
-		@Override
-		public void resultFailed(Message msg) {
-			Log.d("LocationActivity", "Handling Error Message");
-			if(progress.isShowing()){
+    	@Override
+    	public void resultFailed(Message msg) {
+    		Log.d("LocationActivity", "Handling Error Message");
+    		if(progress.isShowing()){
     			progress.dismiss();
     		}
-		}
+    	}
     };
-    private class TweetAdapter extends ArrayAdapter<TStatus> 
+    private class TracksAdapter extends ArrayAdapter<Track> 
     {
-        private ArrayList<TStatus> tweets;
+    	private ArrayList<Track> tracks;
+    	public TracksAdapter(Context context, int textViewResourceId, ArrayList<Track> bs) 
+    	{
+    		super(context, textViewResourceId, bs);
+    		this.tracks = bs;
+    	}
+    	@Override
+    	public View getView(int position, View convertView, ViewGroup parent) {
+    		View v = convertView;
+    		if (v == null) {
+    			LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    			v = vi.inflate(R.layout.track_cell, null);
+    		}
+    		Track aTrack = tracks.get(position);
 
-        
-        public TweetAdapter(Context context, int textViewResourceId, ArrayList<TStatus> tweets) 
-        {
-                super(context, textViewResourceId, tweets);
-                this.tweets = tweets;
-        }
-        
-        
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-                View v = convertView;
-                if (v == null) {
-                    LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    v = vi.inflate(R.layout.tweet_cell, null);
-                }
-                TStatus status = tweets.get(position);
-            	
-                //initialize all the text views
-                TextView text = (TextView) v.findViewById(R.id.text);
-                text.setText("@"+status.user.screenName + ": " + status.text);
-                return v;
-        }
+    		//initialize all the text views
+    		TextView text = (TextView) v.findViewById(R.id.title);
+    		text.setText(aTrack.name);
+    		TextView artists = (TextView) v.findViewById(R.id.artists);
+    		artists.setText("By "+ aTrack.getArtists());
+    		return v;
+    	}
     }
     
 }

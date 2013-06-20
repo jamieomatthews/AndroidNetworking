@@ -10,6 +10,12 @@
         android:id="@+id/search"
         android:text= "Search"
         />
+    <EditText 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/query"
+        android:hint="Enter a beer to search for"
+        />
     <ListView
   	android:id="@+id/list"
   	android:layout_width="match_parent"
