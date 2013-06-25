@@ -1,9 +1,9 @@
 AndroidNetworkKit
 =================
 
-Android Networking Kit is a framework for routing simple network requests with minimal code for Android OS.  It provides an easy way to integrate your activity with powerful network requests, while keeping your activities clean and readable.  
+Android Networking Kit is a framework for routing simple network requests with minimal code for Android.  It provides an easy way to integrate your activity with powerful network requests, while keeping your activities clean and readable.  
 
-The sample MainActivity gives a simple example of using the twitter API to route a request, parse, and display it.
+The sample MainActivity gives a simple example of using the [Spotify API](https://developer.spotify.com/technologies/web-api/) to route a request, parse, and display it.
 
 ##Setting up your activity
 First, you must override the ANTask and ANHandler in your activity.
