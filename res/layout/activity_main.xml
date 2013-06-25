@@ -4,21 +4,26 @@
     android:layout_height="match_parent" 
     android:orientation="vertical">
     
-    <Button 
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/search"
-        android:text= "Search"
-        />
     <EditText 
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dip"
         android:id="@+id/query"
-        android:hint="Enter a beer to search for"
+        android:hint="Enter a track to search for"
         />
+    
+    <Button 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dip"
+        android:id="@+id/search"
+        android:text= "Search"
+        />
+    
     <ListView
   	android:id="@+id/list"
   	android:layout_width="match_parent"
+  	android:layout_margin="10dip"
   	android:layout_height="match_parent" >
 	</ListView> 
 
